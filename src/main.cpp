@@ -1,5 +1,8 @@
 #include <M5StickCPlus.h>
 #include <buffer.h>
+#define MIN_WIDTH (0.3)
+#define WIDTH_UPDATE (100)
+
 int step = 0;
 float total = 0;
 int count = 0;
@@ -58,27 +61,25 @@ void loop()
   Serial.printf(">accX:%f\n", accX);
   Serial.printf(">accY:%f\n", accY);
   Serial.printf(">accZ:%f\n", accZ);
+  Serial.printf(">avg+width:%f\n", avg + width);
 
   // Calibration for average acceleration.
-  if (count < 100)
+  buffer.push(accel);
+  avg = buffer.average();
+  count += 1;
+  if (count >= WIDTH_UPDATE)
   {
-    total += accel;
-    count += 1;
-  }
-  else
-  {
-    avg = total / count;
     width = avg / 10;
-    total = avg;
-    count = 1;
+    // width = width < MIN_WIDTH ? MIN_WIDTH : width;
+    count = 0;
   }
 
   // When current accel. is ...
-  if (accel > avg + width)
+  if (accel > avg + width && accel > avg + (width * 2))
   {
     state = true;
   }
-  else if (accel < avg - width)
+  else if (accel < avg - width && accel < avg - (width * 2))
   {
     state = false;
   }
