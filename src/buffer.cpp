@@ -33,7 +33,8 @@ float Buffer::average()
 
 void Buffer::push(float value)
 {
-    this->inner[this->index++] = value;
+    this->inner[this->index] = value;
+    index += 1;
     if (this->index >= this->size)
     {
         this->index = 0;
